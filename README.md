@@ -13,7 +13,7 @@
   <a href="https://doi.org/10.15454/GLNRHK"><img src="https://img.shields.io/badge/Data-INRAE%20Repository-green" alt="Data"></a>
   <a href="https://creativecommons.org/licenses/by/4.0/"><img src="https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey" alt="License"></a>
   <a href="https://pypi.org/project/cylinderwake3900/"><img src="https://img.shields.io/pypi/v/cylinderwake3900" alt="PyPI"></a>
-  <a href="https://github.com/Ali-Rahimi-Khojasteh/cylinder-wake-re3900/stargazers"><img src="https://img.shields.io/github/stars/Ali-Rahimi-Khojasteh/cylinder-wake-re3900?style=social" alt="Stars"></a>
+  <a href="https://github.com/AliRKhojasteh/cylinder-wake-re3900/stargazers"><img src="https://img.shields.io/github/stars/AliRKhojasteh/cylinder-wake-re3900?style=social" alt="Stars"></a>
 </p>
 
 ---
@@ -21,6 +21,12 @@
 Direct Numerical Simulation (DNS) of incompressible turbulent flow past a smooth circular cylinder at Reynolds number 3900, computed with [Incompact3d](https://github.com/xcompact3d/Incompact3d). This repository provides **ML-ready data loaders, benchmark tasks, and example notebooks** for the dataset published in:
 
 > **A. R. Khojasteh, S. Laizet, D. Heitz, Y. Yang** (2021). *Lagrangian and Eulerian dataset of the wake downstream of a smooth cylinder at a Reynolds number equal to 3900.* Data in Brief, 40, 107725. [doi:10.1016/j.dib.2021.107725](https://doi.org/10.1016/j.dib.2021.107725)
+
+## Domain & Grid Layout
+
+<p align="center">
+  <img src="grid_preview.png" alt="Grid preview" width="100%">
+</p>
 
 ## What Makes This Dataset Unique
 
@@ -44,7 +50,7 @@ from cylinderwake import CylinderWake3900
 # Eulerian velocity fields (auto-downloads on first use)
 ds = CylinderWake3900("eulerian", "near", split="train")
 sample = ds[0]
-print(sample["velocity"].shape)   # (3, 769, 777, 256)
+print(sample["velocity"].shape)   # (3, 768, 779, 256)
 
 # Pressure is available for sub-domain 2 ("far") only
 ds_far = CylinderWake3900("eulerian", "far", split="train")
@@ -79,7 +85,7 @@ cylinderwake-convert     # Convert to HDF5
 
 | Sub-domain | Dimensions | Grid | Snapshots | dt | Snapshot Size |
 |:----------:|:----------:|:----:|:---------:|:--:|:------------:|
-| **1** (near-wake) | 10D × 8D × 6D | 769 × 777 × 256 | 100 | 0.0075 D/U∞ | 4.8 GB |
+| **1** (near-wake) | 10D × 8D × 6D | 768 × 779 × 256 | 100 | 0.0075 D/U∞ | 4.8 GB |
 | **2** (far-wake) | 4D × 2D × 2D | 308 × 328 × 87 | 1000 | 0.00075 D/U∞ | 256 MB |
 
 | Component | Sub-domain 1 | Sub-domain 2 | HDF5 Shape |
@@ -125,7 +131,7 @@ Predict particle trajectories from the Eulerian velocity field.
 | Simple CNN | *TBD* | — | — | — |
 | **Your method** | — | — | — | — |
 
-**Submit your results** via [Pull Request](https://github.com/Ali-Rahimi-Khojasteh/cylinder-wake-re3900/pulls)!
+**Submit your results** via [Pull Request](https://github.com/AliRKhojasteh/cylinder-wake-re3900/pulls)!
 
 ## Notebooks
 
@@ -152,7 +158,7 @@ pip install cylinderwake3900[viz]
 pip install cylinderwake3900[all]
 
 # Development
-git clone https://github.com/Ali-Rahimi-Khojasteh/cylinder-wake-re3900.git
+git clone https://github.com/AliRKhojasteh/cylinder-wake-re3900.git
 cd cylinder-wake-re3900
 pip install -e ".[dev,all]"
 ```

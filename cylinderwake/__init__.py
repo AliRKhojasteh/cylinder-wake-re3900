@@ -11,7 +11,7 @@ Quick start:
 
 Paper:  https://doi.org/10.1016/j.dib.2021.107725
 Data:   https://doi.org/10.15454/GLNRHK
-GitHub: https://github.com/Ali-Rahimi-Khojasteh/cylinder-wake-re3900
+GitHub: https://github.com/AliRKhojasteh/cylinder-wake-re3900
 """
 
 __version__ = "1.0.0"

@@ -38,7 +38,7 @@ GRID_DIMS = {
     # Sub-domain 1: (4-14)D x (6-14)D x 6D = 10D x 8D x 6D
     # 100 Eulerian snapshots, saved every 10 DNS steps (dt_eff = 0.0075 D/U_inf)
     # Snapshot size: 4.8 GB each
-    1: {"nx": 769, "ny": 777, "nz": 256,
+    1: {"nx": 768, "ny": 779, "nz": 256,
         "x_range": "(4-14)D", "y_range": "(6-14)D", "z_range": "6D",
         "dt": 0.0075, "n_snapshots": 100},
 

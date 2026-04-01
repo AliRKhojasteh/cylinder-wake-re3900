@@ -42,7 +42,7 @@ Found a bug? Open an Issue with:
 ## Development Setup
 
 ```bash
-git clone https://github.com/Ali-Rahimi-Khojasteh/cylinder-wake-re3900.git
+git clone https://github.com/AliRKhojasteh/cylinder-wake-re3900.git
 cd cylinder-wake-re3900
 pip install -e ".[dev,all]"
 ```

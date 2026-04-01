@@ -33,7 +33,7 @@ BASE_URL = "https://entrepot.recherche.data.gouv.fr/api/access/datafile/:persist
 #
 # Naming convention in the repository:
 #   U = streamwise velocity (ux), V = vertical velocity (uy), W = spanwise velocity (uz)
-#   Sub-domain 1: 10D x 8D x 6D, grid 769 x 777 x 256 (large, every 10 DNS steps)
+#   Sub-domain 1: 10D x 8D x 6D, grid 768 x 779 x 256 (large, every 10 DNS steps)
 #   Sub-domain 2:  4D x 2D x 2D, grid 308 x 328 x  87 (small, every DNS step)
 
 FILE_REGISTRY: Dict[str, Dict] = {

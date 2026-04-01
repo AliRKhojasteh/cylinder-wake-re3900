@@ -50,7 +50,7 @@ SUBDOMAINS = {
         "description": "Sub-domain 1: large near-wake region",
         "dimensions": "10D x 8D x 6D",
         "x_range": "(4–14)D downstream",
-        "grid": "769 x 777 x 256",
+        "grid": "768 x 779 x 256",
         "n_snapshots": 100,
         "dt": "0.0075 D/U∞ (every 10 DNS steps)",
     },
