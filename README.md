@@ -41,11 +41,15 @@ pip install cylinderwake3900
 ```python
 from cylinderwake import CylinderWake3900
 
-# Eulerian velocity + pressure fields (auto-downloads on first use)
+# Eulerian velocity fields (auto-downloads on first use)
 ds = CylinderWake3900("eulerian", "near", split="train")
 sample = ds[0]
-print(sample["velocity"].shape)   # (3, Nx, Ny, Nz)
-print(sample["pressure"].shape)   # (1, Nx, Ny, Nz)
+print(sample["velocity"].shape)   # (3, 769, 777, 256)
+
+# Pressure is available for sub-domain 2 ("far") only
+ds_far = CylinderWake3900("eulerian", "far", split="train")
+sample = ds_far[0]
+print(sample["pressure"].shape)   # (1, 308, 328, 87)
 
 # Lagrangian particle trajectories (~100k particles)
 ds_lag = CylinderWake3900("lagrangian", "near")
@@ -84,7 +88,11 @@ cylinderwake-convert     # Convert to HDF5
 | **3D Pressure** | — | 1000 snapshots | `(1, Nx, Ny, Nz)` |
 | **2D Snapshots** (mid-plane) | ✓ | ✓ | `(2, Nx, Ny)` |
 | **Lagrangian** (~100k particles each) | ✓ | ✓ | `(N_particles, 3)` |
-| **Grid** | ✓ | ✓ | `(Nx,), (Ny,), (Nz,)` |
+| **Grid coordinates** | generated | generated | `(Nx,), (Ny,), (Nz,)` |
+
+> **Note on pressure**: Pressure fields are only available for Sub-domain 2. For Sub-domain 1, `sample["pressure"]` returns `None`.
+>
+> **Note on grid**: Grid coordinates are generated from the sub-domain physical extents (uniformly spaced). The actual DNS uses Incompact3d's stretched mesh — for exact coordinates, reconstruct from the original `.i3d` parameter file.
 
 **Total raw data size**: ~288 GB (24 zip files on [INRAE](https://doi.org/10.15454/GLNRHK))
 

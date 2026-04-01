@@ -245,7 +245,7 @@ class EulerianDataset(_BaseDataset):
     Each sample is a dictionary:
         {
             "velocity": Tensor of shape (3, Nx, Ny, Nz),   # [ux, uy, uz]
-            "pressure": Tensor of shape (1, Nx, Ny, Nz),
+            "pressure": Tensor of shape (1, Nx, Ny, Nz) or None,  # only SD2
             "time":     float,
             "index":    int,
             "grid":     {
@@ -254,6 +254,9 @@ class EulerianDataset(_BaseDataset):
                 "z": Tensor (Nz,),
             },
         }
+
+    Note: Pressure is only available for sub-domain 2 ("far").
+    For sub-domain 1 ("near"), sample["pressure"] is None.
     """
 
     def _get_hdf5_path(self) -> Path:
@@ -270,7 +273,12 @@ class EulerianDataset(_BaseDataset):
                 snap["uz"][()],
             ], axis=0).astype(np.float32)
 
-            pressure = snap["pressure"][()][np.newaxis].astype(np.float32)
+            # Pressure is only available for sub-domain 2 ("far")
+            if "pressure" in snap:
+                pressure = snap["pressure"][()][np.newaxis].astype(np.float32)
+            else:
+                pressure = None
+
             time_val = float(snap.attrs.get("time", real_idx))
 
             grid = {}
@@ -286,7 +294,7 @@ class EulerianDataset(_BaseDataset):
 
         sample = {
             "velocity": _to_tensor(velocity),
-            "pressure": _to_tensor(pressure),
+            "pressure": _to_tensor(pressure) if pressure is not None else None,
             "time": time_val,
             "index": int(real_idx),
             "grid": grid,
@@ -298,8 +306,10 @@ class EulerianDataset(_BaseDataset):
         return sample
 
     def _normalize_fields(
-        self, velocity: np.ndarray, pressure: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray]:
+        self,
+        velocity: np.ndarray,
+        pressure: Optional[np.ndarray],
+    ) -> Tuple[np.ndarray, Optional[np.ndarray]]:
         """Z-score normalization using dataset-wide statistics."""
         if self._stats is None:
             stats_path = self._hdf5_path.parent / f"stats_{self.subdomain}.json"
@@ -314,11 +324,13 @@ class EulerianDataset(_BaseDataset):
 
         vel_mean = np.array(self._stats["velocity_mean"]).reshape(3, 1, 1, 1)
         vel_std = np.array(self._stats["velocity_std"]).reshape(3, 1, 1, 1)
-        p_mean = self._stats["pressure_mean"]
-        p_std = self._stats["pressure_std"]
-
         velocity = (velocity - vel_mean) / (vel_std + 1e-8)
-        pressure = (pressure - p_mean) / (p_std + 1e-8)
+
+        if pressure is not None and self._stats.get("pressure_mean") is not None:
+            p_mean = self._stats["pressure_mean"]
+            p_std = self._stats["pressure_std"]
+            pressure = (pressure - p_mean) / (p_std + 1e-8)
+
         return velocity, pressure
 
     def _compute_stats(self) -> Dict[str, Any]:
@@ -328,6 +340,7 @@ class EulerianDataset(_BaseDataset):
         p_sum = 0.0
         p_sq_sum = 0.0
         n = 0
+        has_pressure = False
 
         with h5py.File(self._hdf5_path, "r") as f:
             for key in sorted(f.keys()):
@@ -338,22 +351,30 @@ class EulerianDataset(_BaseDataset):
                     data = snap[comp][()]
                     vel_sum[i] += data.sum()
                     vel_sq_sum[i] += (data ** 2).sum()
-                p = snap["pressure"][()]
-                p_sum += p.sum()
-                p_sq_sum += (p ** 2).sum()
+                if "pressure" in snap:
+                    has_pressure = True
+                    p = snap["pressure"][()]
+                    p_sum += p.sum()
+                    p_sq_sum += (p ** 2).sum()
                 n += data.size
 
         vel_mean = vel_sum / n
         vel_std = np.sqrt(vel_sq_sum / n - vel_mean ** 2)
-        p_mean = p_sum / n
-        p_std = np.sqrt(p_sq_sum / n - p_mean ** 2)
 
-        return {
+        stats = {
             "velocity_mean": vel_mean.tolist(),
             "velocity_std": vel_std.tolist(),
-            "pressure_mean": float(p_mean),
-            "pressure_std": float(p_std),
+            "pressure_mean": None,
+            "pressure_std": None,
         }
+
+        if has_pressure and n > 0:
+            p_mean = p_sum / n
+            p_std = np.sqrt(p_sq_sum / n - p_mean ** 2)
+            stats["pressure_mean"] = float(p_mean)
+            stats["pressure_std"] = float(p_std)
+
+        return stats
 
     def get_sequence(
         self, start: int, length: int
@@ -366,15 +387,22 @@ class EulerianDataset(_BaseDataset):
         samples = [self[start + i] for i in range(length)]
         velocity = np.stack([s["velocity"] if isinstance(s["velocity"], np.ndarray)
                             else s["velocity"].numpy() for s in samples])
-        pressure = np.stack([s["pressure"] if isinstance(s["pressure"], np.ndarray)
-                            else s["pressure"].numpy() for s in samples])
         times = [s["time"] for s in samples]
 
-        return {
+        result = {
             "velocity": _to_tensor(velocity),
-            "pressure": _to_tensor(pressure),
             "times": times,
         }
+
+        # Pressure only for sub-domain 2
+        if samples[0]["pressure"] is not None:
+            pressure = np.stack([s["pressure"] if isinstance(s["pressure"], np.ndarray)
+                                else s["pressure"].numpy() for s in samples])
+            result["pressure"] = _to_tensor(pressure)
+        else:
+            result["pressure"] = None
+
+        return result
 
 
 # ── Lagrangian Dataset ──────────────────────────────────────────────
