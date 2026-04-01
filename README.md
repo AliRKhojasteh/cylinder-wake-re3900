@@ -88,11 +88,11 @@ cylinderwake-convert     # Convert to HDF5
 | **3D Pressure** | — | 1000 snapshots | `(1, Nx, Ny, Nz)` |
 | **2D Snapshots** (mid-plane) | ✓ | ✓ | `(2, Nx, Ny)` |
 | **Lagrangian** (~100k particles each) | ✓ | ✓ | `(N_particles, 3)` |
-| **Grid coordinates** | generated | generated | `(Nx,), (Ny,), (Nz,)` |
+| **Grid coordinates** | ✓ (bundled) | ✓ (bundled) | `(Nx,), (Ny,), (Nz,)` |
 
 > **Note on pressure**: Pressure fields are only available for Sub-domain 2. For Sub-domain 1, `sample["pressure"]` returns `None`.
 >
-> **Note on grid**: Grid coordinates are generated from the sub-domain physical extents (uniformly spaced). The actual DNS uses Incompact3d's stretched mesh — for exact coordinates, reconstruct from the original `.i3d` parameter file.
+> **Note on grid**: The exact DNS grid coordinates are bundled in `cylinderwake/grid_coordinates.npz`. The grid is **uniform in x and z** but **non-uniform (stretched) in y**, with refinement near the cylinder centre (Δy_min ≈ 0.00563D). The stretching follows Incompact3d's mapping function (Laizet & Lamballais, JCP 2009) with β ≈ 2.0.
 
 **Total raw data size**: ~288 GB (24 zip files on [INRAE](https://doi.org/10.15454/GLNRHK))
 

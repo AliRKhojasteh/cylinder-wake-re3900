@@ -47,10 +47,10 @@ all = ["torch>=1.9", "matplotlib>=3.4", "plotly>=5.0", "jupyter"]
 dev = ["pytest", "ruff", "pre-commit"]
 
 [project.urls]
-Homepage = "https://github.com/Ali-Rahimi-Khojasteh/cylinder-wake-re3900"
+Homepage = "https://github.com/AliRKhojasteh/cylinder-wake-re3900"
 Paper = "https://doi.org/10.1016/j.dib.2021.107725"
 Dataset = "https://doi.org/10.15454/GLNRHK"
-Issues = "https://github.com/Ali-Rahimi-Khojasteh/cylinder-wake-re3900/issues"
+Issues = "https://github.com/AliRKhojasteh/cylinder-wake-re3900/issues"
 
 [project.scripts]
 cylinderwake-download = "cylinderwake.download:cli_download"
@@ -58,6 +58,9 @@ cylinderwake-convert = "cylinderwake.convert:cli_convert"
 
 [tool.setuptools.packages.find]
 include = ["cylinderwake*"]
+
+[tool.setuptools.package-data]
+cylinderwake = ["grid_coordinates.npz"]
 
 [tool.ruff]
 line-length = 100

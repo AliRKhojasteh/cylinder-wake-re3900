@@ -54,36 +54,40 @@ GRID_DIMS = {
 SUBDOMAIN_NAME_MAP = {"near": 1, "far": 2}
 
 
-# ── Grid generation ────────────────────────────────────────────────
+# ── Grid coordinates ───────────────────────────────────────────────
 #
-# Incompact3d uses a stretched mesh in the (x, y) directions and uniform
-# spacing in z. The stretching is based on the mapping function from
-# Laizet & Lamballais (2009), JCP 228(16):5989-6015.
+# Incompact3d uses a Cartesian grid with:
+#   - Uniform spacing in x (streamwise) and z (spanwise/periodic)
+#   - Non-uniform (stretched) spacing in y (vertical), refined near
+#     the cylinder centre at y = 10D  (Δy_min ≈ 0.00563D)
 #
-# The full DNS domain is 20D × 20D × 6D with 1537 × 1025 × 256 points,
-# centered at (10D, 10D, 3D).
+# The stretching follows Laizet & Lamballais (2009), JCP 228(16):5989,
+# with parameter beta ≈ 2.0 and istret = 1 (symmetric about centre).
 #
-# Sub-domains are cropped from the full DNS grid:
-#   SD1: x ∈ [4D, 14D], y ∈ [6D, 14D], z ∈ [0D, 6D]
-#   SD2: x ∈ [4D,  8D], y ∈ [9D, 11D], z ∈ [2D, 4D]
+# The exact 1D coordinate arrays for each sub-domain are bundled with
+# this package as  cylinderwake/grid_coordinates.npz  (17 KB), extracted
+# from the original simulation grid files provided by the authors.
 #
-# Since we don't have the exact stretching parameters, we generate the
-# 1D coordinate arrays from uniform distributions over each sub-domain
-# range. This is approximate — the actual DNS uses non-uniform stretching
-# in x and y (finer near the cylinder at x=0, y=10D). For ML tasks that
-# only need relative grid positions, this is typically sufficient.
-# For exact coordinates, reconstruct from the Incompact3d .i3d input file.
+# Coordinate frame:
+#   Sub-domain 1 ("near"): x ∈ [4D, 14D], y ∈ [0, 8D] (local), z ∈ [0, 6D]
+#   Sub-domain 2 ("far"):  x ∈ [4D, 8D],  y ∈ [3D, 5D] (SD1-local), z ∈ [2D, 4D]
+#   y is in a local frame where y = 0 corresponds to y_global = 6D.
 
-# Physical extents of each sub-domain (in units of D)
-SUBDOMAIN_EXTENTS = {
-    1: {"x": (4.0, 14.0), "y": (6.0, 14.0), "z": (0.0, 6.0)},
-    2: {"x": (4.0,  8.0), "y": (9.0, 11.0), "z": (2.0, 4.0)},
+_GRID_NPZ = Path(__file__).parent / "grid_coordinates.npz"
+
+_SUBDOMAIN_GRID_KEYS = {
+    1: {"x": "x_near", "y": "y_near", "z": "z_near"},
+    2: {"x": "x_far",  "y": "y_far",  "z": "z_far"},
 }
 
 
-def generate_grid(sd_num: int) -> Dict[str, np.ndarray]:
+def load_grid(sd_num: int) -> Dict[str, np.ndarray]:
     """
-    Generate 1D coordinate arrays for a sub-domain.
+    Load the exact DNS grid coordinates for a sub-domain.
+
+    The coordinates are the original Incompact3d grid points extracted
+    from the simulation.  y is non-uniform (stretched), x and z are
+    uniform.
 
     Parameters
     ----------
@@ -92,41 +96,21 @@ def generate_grid(sd_num: int) -> Dict[str, np.ndarray]:
 
     Returns
     -------
-    dict with keys "x", "y", "z", each a 1D array of grid coordinates in D.
-
-    Notes
-    -----
-    These are uniformly spaced approximations. The actual DNS grid uses
-    Incompact3d's stretching function which clusters points near the
-    cylinder surface (y ~ 10D). For exact coordinates, use the original
-    .i3d parameter file with Incompact3d's mesh generation routine.
+    dict with keys "x", "y", "z" — each a 1D float64 array in
+    units of cylinder diameter D.
     """
-    dims = GRID_DIMS[sd_num]
-    ext = SUBDOMAIN_EXTENTS[sd_num]
-
+    if not _GRID_NPZ.exists():
+        raise FileNotFoundError(
+            f"Grid coordinate file not found at {_GRID_NPZ}. "
+            f"Reinstall the cylinderwake package."
+        )
+    data = np.load(_GRID_NPZ)
+    keys = _SUBDOMAIN_GRID_KEYS[sd_num]
     return {
-        "x": np.linspace(ext["x"][0], ext["x"][1], dims["nx"]),
-        "y": np.linspace(ext["y"][0], ext["y"][1], dims["ny"]),
-        "z": np.linspace(ext["z"][0], ext["z"][1], dims["nz"]),
+        "x": data[keys["x"]].astype(np.float64),
+        "y": data[keys["y"]].astype(np.float64),
+        "z": data[keys["z"]].astype(np.float64),
     }
-
-
-def parse_grid(grid_file: Path) -> Dict[str, np.ndarray]:
-    """
-    Parse a grid coordinate file if one exists.
-
-    Supports multiple formats that Incompact3d users may provide.
-    """
-    data = np.loadtxt(grid_file)
-
-    if data.ndim == 2 and data.shape[1] >= 3:
-        return {
-            "x": data[:, 0].astype(np.float64),
-            "y": data[:, 1].astype(np.float64),
-            "z": data[:, 2].astype(np.float64),
-        }
-    else:
-        return {"raw": data.astype(np.float64)}
 
 
 # ── Eulerian snapshot parsing ───────────────────────────────────────
@@ -239,22 +223,11 @@ def convert_raw_to_hdf5(
             f"Run `cylinderwake-download` first."
         )
 
-    # Parse grid (look for a file first; generate from parameters otherwise)
-    grid_files = list(raw_dir.glob("*grid*")) + list(raw_dir.glob("*mesh*"))
-    external_grid = None
-    if grid_files:
-        print(f"📐 Parsing grid from {grid_files[0].name}")
-        external_grid = parse_grid(grid_files[0])
-
     # Convert Eulerian data for each sub-domain
     for subdomain in ["near", "far"]:
         sd_num = SUBDOMAIN_NAME_MAP[subdomain]
-        # Use external grid file if available; otherwise generate from parameters
-        if external_grid is not None:
-            grid = external_grid
-        else:
-            print(f"  📐 Generating grid coordinates for sub-domain {sd_num} ({subdomain})")
-            grid = generate_grid(sd_num)
+        print(f"  📐 Loading grid coordinates for sub-domain {sd_num} ({subdomain})")
+        grid = load_grid(sd_num)
         _convert_eulerian(raw_dir, hdf5_dir, subdomain, grid, force)
         _convert_lagrangian(raw_dir, hdf5_dir, subdomain, force)
 
