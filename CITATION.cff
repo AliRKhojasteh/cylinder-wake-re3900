@@ -1,0 +1,48 @@
+cff-version: 1.2.0
+message: "If you use this dataset, please cite the paper below."
+title: "CylinderWake3900: ML-ready Lagrangian and Eulerian dataset of cylinder wake at Re = 3900"
+type: dataset
+authors:
+  - family-names: "Rahimi Khojasteh"
+    given-names: "Ali"
+    email: "rahimikhojasteh.ali@gmail.com"
+    orcid: ""
+  - family-names: "Laizet"
+    given-names: "Sylvain"
+  - family-names: "Heitz"
+    given-names: "Dominique"
+  - family-names: "Yang"
+    given-names: "Yang"
+doi: "10.1016/j.dib.2021.107725"
+date-released: "2021-12-01"
+url: "https://github.com/Ali-Rahimi-Khojasteh/cylinder-wake-re3900"
+repository: "https://doi.org/10.15454/GLNRHK"
+license: CC-BY-4.0
+keywords:
+  - fluid mechanics
+  - DNS
+  - cylinder wake
+  - Lagrangian
+  - Eulerian
+  - machine learning
+  - benchmark
+  - physics-informed neural networks
+  - data assimilation
+  - particle tracking
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Rahimi Khojasteh"
+      given-names: "Ali"
+    - family-names: "Laizet"
+      given-names: "Sylvain"
+    - family-names: "Heitz"
+      given-names: "Dominique"
+    - family-names: "Yang"
+      given-names: "Yang"
+  title: "Lagrangian and Eulerian dataset of the wake downstream of a smooth cylinder at a Reynolds number equal to 3900"
+  journal: "Data in Brief"
+  volume: 40
+  pages: "107725"
+  year: 2021
+  doi: "10.1016/j.dib.2021.107725"

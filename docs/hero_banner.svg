@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e3a5f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="wake" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="300" fill="url(#bg)" rx="12"/>
+
+  <!-- Grid lines (subtle) -->
+  <g stroke="#334155" stroke-width="0.5" opacity="0.3">
+    <line x1="0" y1="75" x2="1200" y2="75"/>
+    <line x1="0" y1="150" x2="1200" y2="150"/>
+    <line x1="0" y1="225" x2="1200" y2="225"/>
+    <line x1="200" y1="0" x2="200" y2="300"/>
+    <line x1="400" y1="0" x2="400" y2="300"/>
+    <line x1="600" y1="0" x2="600" y2="300"/>
+    <line x1="800" y1="0" x2="800" y2="300"/>
+    <line x1="1000" y1="0" x2="1000" y2="300"/>
+  </g>
+
+  <!-- Cylinder -->
+  <circle cx="200" cy="150" r="30" fill="#64748b" stroke="#94a3b8" stroke-width="2"/>
+
+  <!-- Wake vortices (von Karman street) -->
+  <g fill="none" stroke-width="2" opacity="0.6">
+    <!-- Upper vortices (red = positive vorticity) -->
+    <circle cx="320" cy="120" r="25" stroke="#ef4444" stroke-dasharray="4,3"/>
+    <circle cx="480" cy="115" r="22" stroke="#ef4444" stroke-dasharray="4,3" opacity="0.5"/>
+    <circle cx="630" cy="118" r="20" stroke="#ef4444" stroke-dasharray="4,3" opacity="0.35"/>
+    <circle cx="770" cy="120" r="18" stroke="#ef4444" stroke-dasharray="4,3" opacity="0.2"/>
+
+    <!-- Lower vortices (blue = negative vorticity) -->
+    <circle cx="400" cy="180" r="25" stroke="#3b82f6" stroke-dasharray="4,3"/>
+    <circle cx="555" cy="185" r="22" stroke="#3b82f6" stroke-dasharray="4,3" opacity="0.5"/>
+    <circle cx="700" cy="182" r="20" stroke="#3b82f6" stroke-dasharray="4,3" opacity="0.35"/>
+    <circle cx="840" cy="180" r="18" stroke="#3b82f6" stroke-dasharray="4,3" opacity="0.2"/>
+  </g>
+
+  <!-- Particle dots (Lagrangian) -->
+  <g fill="#22d3ee" opacity="0.7">
+    <circle cx="260" cy="135" r="2"/><circle cx="275" cy="160" r="2"/>
+    <circle cx="290" cy="145" r="1.5"/><circle cx="310" cy="130" r="2"/>
+    <circle cx="330" cy="165" r="1.5"/><circle cx="350" cy="140" r="2"/>
+    <circle cx="370" cy="175" r="1.5"/><circle cx="390" cy="155" r="2"/>
+    <circle cx="410" cy="135" r="1.5"/><circle cx="430" cy="170" r="2"/>
+    <circle cx="450" cy="145" r="1.5"/><circle cx="470" cy="160" r="2"/>
+    <circle cx="490" cy="130" r="1.5"/><circle cx="510" cy="175" r="2"/>
+    <circle cx="530" cy="150" r="1.5"/><circle cx="550" cy="140" r="2"/>
+    <circle cx="570" cy="165" r="1.5"/><circle cx="590" cy="155" r="2"/>
+    <circle cx="305" cy="155" r="1.5"/><circle cx="345" cy="125" r="2"/>
+    <circle cx="385" cy="168" r="1.5"/><circle cx="425" cy="142" r="2"/>
+    <circle cx="465" cy="172" r="1.5"/><circle cx="505" cy="138" r="2"/>
+  </g>
+
+  <!-- Title text -->
+  <text x="730" y="120" font-family="system-ui, -apple-system, sans-serif" font-size="42" font-weight="700" fill="#f8fafc" text-anchor="middle">CylinderWake3900</text>
+  <text x="730" y="155" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#94a3b8" text-anchor="middle">ML-ready Lagrangian &amp; Eulerian DNS data | Re = 3900</text>
+
+  <!-- Tags -->
+  <g font-family="system-ui, -apple-system, sans-serif" font-size="11" text-anchor="middle">
+    <rect x="615" y="172" width="65" height="22" rx="11" fill="#1e40af" opacity="0.5"/>
+    <text x="647" y="187" fill="#93c5fd">PyTorch</text>
+
+    <rect x="688" y="172" width="50" height="22" rx="11" fill="#065f46" opacity="0.5"/>
+    <text x="713" y="187" fill="#6ee7b7">HDF5</text>
+
+    <rect x="746" y="172" width="90" height="22" rx="11" fill="#7c2d12" opacity="0.5"/>
+    <text x="791" y="187" fill="#fdba74">Benchmarks</text>
+
+    <rect x="844" y="172" width="80" height="22" rx="11" fill="#581c87" opacity="0.5"/>
+    <text x="884" y="187" fill="#c4b5fd">Notebooks</text>
+  </g>
+
+  <!-- Flow arrow -->
+  <g stroke="#475569" stroke-width="1.5" fill="none" opacity="0.4">
+    <path d="M 120 150 L 170 150" marker-end="url(#arrowhead)"/>
+  </g>
+  <text x="120" y="140" font-family="monospace" font-size="10" fill="#64748b">U_inf</text>
+
+  <!-- Labels -->
+  <text x="200" y="205" font-family="monospace" font-size="10" fill="#94a3b8" text-anchor="middle">D</text>
+  <text x="320" y="100" font-family="monospace" font-size="9" fill="#ef4444" opacity="0.6" text-anchor="middle">+omega_z</text>
+  <text x="400" y="215" font-family="monospace" font-size="9" fill="#3b82f6" opacity="0.6" text-anchor="middle">-omega_z</text>
+</svg>

@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "cylinderwake3900"
+version = "1.0.0"
+description = "ML-ready Lagrangian & Eulerian dataset of cylinder wake flow at Re = 3900 (DNS)"
+readme = "README.md"
+license = {text = "CC-BY-4.0"}
+requires-python = ">=3.8"
+authors = [
+    {name = "Ali Rahimi Khojasteh", email = "rahimikhojasteh.ali@gmail.com"},
+    {name = "Sylvain Laizet"},
+    {name = "Dominique Heitz"},
+    {name = "Yang Yang"},
+]
+keywords = [
+    "fluid-mechanics", "CFD", "DNS", "turbulence", "cylinder-wake",
+    "machine-learning", "benchmark", "dataset", "Lagrangian", "Eulerian",
+    "physics-informed", "neural-operator", "PINN", "data-assimilation",
+    "particle-tracking", "PTV", "Incompact3d", "Reynolds-3900",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "numpy>=1.20",
+    "h5py>=3.0",
+]
+
+[project.optional-dependencies]
+torch = ["torch>=1.9"]
+viz = ["matplotlib>=3.4", "plotly>=5.0"]
+all = ["torch>=1.9", "matplotlib>=3.4", "plotly>=5.0", "jupyter"]
+dev = ["pytest", "ruff", "pre-commit"]
+
+[project.urls]
+Homepage = "https://github.com/Ali-Rahimi-Khojasteh/cylinder-wake-re3900"
+Paper = "https://doi.org/10.1016/j.dib.2021.107725"
+Dataset = "https://doi.org/10.15454/GLNRHK"
+Issues = "https://github.com/Ali-Rahimi-Khojasteh/cylinder-wake-re3900/issues"
+
+[project.scripts]
+cylinderwake-download = "cylinderwake.download:cli_download"
+cylinderwake-convert = "cylinderwake.convert:cli_convert"
+
+[tool.setuptools.packages.find]
+include = ["cylinderwake*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"

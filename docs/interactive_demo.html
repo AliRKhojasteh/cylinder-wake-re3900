@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CylinderWake3900 — Interactive Dataset Explorer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    line-height: 1.6;
+  }
+  .header {
+    text-align: center;
+    padding: 3rem 2rem 2rem;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+    border-bottom: 1px solid #334155;
+  }
+  .header h1 { font-size: 2.5rem; font-weight: 700; color: #f8fafc; }
+  .header p { color: #94a3b8; font-size: 1.1rem; margin-top: 0.5rem; }
+  .badges { margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
+  .badge {
+    display: inline-block; padding: 0.3rem 0.8rem; border-radius: 1rem;
+    font-size: 0.8rem; font-weight: 500;
+  }
+  .badge-blue { background: #1e40af; color: #93c5fd; }
+  .badge-green { background: #065f46; color: #6ee7b7; }
+  .badge-amber { background: #7c2d12; color: #fdba74; }
+  .badge-purple { background: #581c87; color: #c4b5fd; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+  .card {
+    background: #1e293b; border-radius: 12px; padding: 1.5rem;
+    margin-bottom: 2rem; border: 1px solid #334155;
+  }
+  .card h2 { font-size: 1.3rem; color: #f1f5f9; margin-bottom: 1rem; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .stat { text-align: center; padding: 1rem; }
+  .stat-value { font-size: 2rem; font-weight: 700; color: #3b82f6; }
+  .stat-label { font-size: 0.85rem; color: #94a3b8; margin-top: 0.25rem; }
+
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .code-block {
+    background: #0f172a; border-radius: 8px; padding: 1.2rem;
+    font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.85rem;
+    overflow-x: auto; border: 1px solid #334155; line-height: 1.7;
+    color: #e2e8f0;
+  }
+  .code-block .kw { color: #c084fc; }
+  .code-block .str { color: #34d399; }
+  .code-block .cmt { color: #64748b; }
+  .code-block .fn { color: #60a5fa; }
+
+  .task-list { list-style: none; }
+  .task-list li {
+    padding: 0.8rem 1rem; border-left: 3px solid #3b82f6;
+    margin-bottom: 0.8rem; background: #0f172a; border-radius: 0 8px 8px 0;
+  }
+  .task-list li strong { color: #f1f5f9; }
+  .task-list li em { color: #94a3b8; font-size: 0.9rem; }
+  .task-unique { border-left-color: #f59e0b !important; }
+
+  .bibtex {
+    background: #0f172a; border-radius: 8px; padding: 1.2rem;
+    font-family: monospace; font-size: 0.8rem; overflow-x: auto;
+    border: 1px solid #334155; color: #94a3b8; white-space: pre;
+    cursor: pointer; position: relative;
+  }
+  .bibtex:hover { border-color: #3b82f6; }
+  .copy-hint {
+    position: absolute; top: 0.5rem; right: 0.5rem;
+    font-size: 0.7rem; color: #64748b; background: #1e293b;
+    padding: 0.2rem 0.5rem; border-radius: 4px;
+  }
+
+  .plot-container { width: 100%; min-height: 400px; }
+
+  a { color: #60a5fa; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .footer {
+    text-align: center; padding: 2rem; color: #64748b;
+    border-top: 1px solid #1e293b; font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>CylinderWake3900</h1>
+  <p>ML-ready Lagrangian &amp; Eulerian DNS dataset of turbulent cylinder wake at Re = 3900</p>
+  <div class="badges">
+    <span class="badge badge-blue">PyTorch</span>
+    <span class="badge badge-green">HDF5</span>
+    <span class="badge badge-amber">4 Benchmark Tasks</span>
+    <span class="badge badge-purple">Jupyter Notebooks</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="card stat">
+      <div class="stat-value">3900</div>
+      <div class="stat-label">Reynolds Number</div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value">~200k</div>
+      <div class="stat-label">Lagrangian Particles</div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value">3D+t</div>
+      <div class="stat-label">Velocity + Pressure</div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value">DNS</div>
+      <div class="stat-label">Incompact3d</div>
+    </div>
+  </div>
+
+  <!-- Interactive Wake Visualization -->
+  <div class="card">
+    <h2>Interactive Wake Visualization (Simulated)</h2>
+    <p style="color:#94a3b8; margin-bottom:1rem; font-size:0.9rem;">
+      Synthetic demonstration of the von Karman vortex street. Load real data with the Python package.
+    </p>
+    <div id="wake-plot" class="plot-container"></div>
+  </div>
+
+  <!-- Particle Trajectories -->
+  <div class="card">
+    <h2>Lagrangian Particle Trajectories (Simulated)</h2>
+    <div id="particle-plot" class="plot-container"></div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Quick Start -->
+    <div class="card">
+      <h2>Quick Start</h2>
+      <div class="code-block">
+<span class="cmt"># Install</span>
+pip install cylinderwake3900
+
+<span class="cmt"># Python</span>
+<span class="kw">from</span> cylinderwake <span class="kw">import</span> CylinderWake3900
+
+<span class="cmt"># Eulerian fields (auto-download)</span>
+ds = <span class="fn">CylinderWake3900</span>(<span class="str">"eulerian"</span>, <span class="str">"near"</span>)
+sample = ds[<span class="str">0</span>]
+<span class="fn">print</span>(sample[<span class="str">"velocity"</span>].shape)
+
+<span class="cmt"># Lagrangian particles</span>
+ds = <span class="fn">CylinderWake3900</span>(<span class="str">"lagrangian"</span>, <span class="str">"near"</span>)
+
+<span class="cmt"># AI agent metadata</span>
+<span class="kw">from</span> cylinderwake.api <span class="kw">import</span> get_dataset_card_json
+<span class="fn">print</span>(<span class="fn">get_dataset_card_json</span>())
+      </div>
+    </div>
+
+    <!-- Benchmark Tasks -->
+    <div class="card">
+      <h2>Benchmark Tasks</h2>
+      <ul class="task-list">
+        <li>
+          <strong>Temporal Forecasting</strong><br>
+          <em>Predict next velocity snapshot from history</em>
+        </li>
+        <li>
+          <strong>Super-Resolution</strong><br>
+          <em>Reconstruct high-res from coarsened fields (4x, 8x, 16x)</em>
+        </li>
+        <li class="task-unique">
+          <strong>Sparse Reconstruction (Unique!)</strong><br>
+          <em>Lagrangian particles to Eulerian field — paired data</em>
+        </li>
+        <li>
+          <strong>Lagrangian Prediction</strong><br>
+          <em>Predict particle trajectories from Eulerian field</em>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Citation -->
+  <div class="card">
+    <h2>Citation</h2>
+    <div class="bibtex" onclick="navigator.clipboard.writeText(this.innerText.replace('Click to copy','').trim())">
+      <span class="copy-hint">Click to copy</span>
+@article{khojasteh2021lagrangian,
+  title     = {Lagrangian and {Eulerian} dataset of the wake
+               downstream of a smooth cylinder at a {Reynolds}
+               number equal to 3900},
+  author    = {Khojasteh, Ali Rahimi and Laizet, Sylvain and
+               Heitz, Dominique and Yang, Yang},
+  journal   = {Data in Brief},
+  volume    = {40},
+  pages     = {107725},
+  year      = {2021},
+  doi       = {10.1016/j.dib.2021.107725},
+}</div>
+  </div>
+
+  <!-- Links -->
+  <div class="card" style="text-align:center;">
+    <h2>Links</h2>
+    <p style="font-size:1.1rem; margin-top:0.5rem;">
+      <a href="https://doi.org/10.1016/j.dib.2021.107725">Paper</a> &nbsp;|&nbsp;
+      <a href="https://doi.org/10.15454/GLNRHK">Data Repository</a> &nbsp;|&nbsp;
+      <a href="https://github.com/Ali-Rahimi-Khojasteh/cylinder-wake-re3900">GitHub</a> &nbsp;|&nbsp;
+      <a href="https://pypi.org/project/cylinderwake3900/">PyPI</a>
+    </p>
+  </div>
+
+</div>
+
+<div class="footer">
+  CylinderWake3900 &mdash; Khojasteh, Laizet, Heitz, Yang (2021) &mdash; CC BY 4.0
+</div>
+
+<script>
+// Generate synthetic wake visualization
+function generateWakeData() {
+  const nx = 120, ny = 80;
+  const x = [], y = [], z = [];
+  for (let i = 0; i < nx; i++) {
+    const row_x = [], row_y = [], row_z = [];
+    for (let j = 0; j < ny; j++) {
+      const xv = i / nx * 10 - 1;
+      const yv = (j / ny - 0.5) * 4;
+      row_x.push(xv);
+      row_y.push(yv);
+      // Simulate vortex street
+      const r = Math.sqrt((xv + 0.5)**2 + yv**2);
+      let val = 0;
+      if (r > 0.5) {
+        val = Math.sin(2 * Math.PI * xv / 2.5 + yv * 0.5) *
+              Math.exp(-yv * yv / 2) *
+              Math.min(1, (xv + 0.5) / 1.5);
+      }
+      // Add some turbulent-like noise downstream
+      val += 0.1 * Math.sin(7 * xv + 3 * yv) * Math.exp(-yv*yv/3) * Math.max(0, xv);
+      row_z.push(val);
+    }
+    x.push(row_x); y.push(row_y); z.push(row_z);
+  }
+  return {x, y, z};
+}
+
+const wake = generateWakeData();
+Plotly.newPlot('wake-plot', [{
+  type: 'heatmap',
+  z: wake.z,
+  colorscale: [[0,'#3b82f6'],[0.5,'#f8fafc'],[1,'#ef4444']],
+  colorbar: {title: {text: 'omega_z', font: {color: '#94a3b8'}}, tickfont: {color: '#94a3b8'}},
+  hovertemplate: 'x: %{x:.2f}<br>y: %{y:.2f}<br>vorticity: %{z:.3f}<extra></extra>',
+}], {
+  paper_bgcolor: '#1e293b',
+  plot_bgcolor: '#1e293b',
+  font: {color: '#94a3b8'},
+  xaxis: {title: 'x / D (streamwise)', gridcolor: '#334155'},
+  yaxis: {title: 'y / D (cross-stream)', gridcolor: '#334155'},
+  margin: {t: 30, b: 50, l: 60, r: 20},
+  // Add cylinder annotation
+  shapes: [{
+    type: 'circle', x0: -0.04, x1: 0.04, y0: 0.46, y1: 0.54,
+    fillcolor: '#64748b', line: {color: '#94a3b8', width: 2},
+    xref: 'paper', yref: 'paper',
+  }],
+}, {responsive: true});
+
+// Generate synthetic particle data
+function generateParticles(n) {
+  const px = [], py = [], speed = [];
+  for (let i = 0; i < n; i++) {
+    const x = Math.random() * 8;
+    const y = (Math.random() - 0.5) * 3;
+    const r = Math.sqrt((x - 0)**2 + y**2);
+    let u = 1 - 0.5 * Math.exp(-r);
+    let v = 0.3 * Math.sin(2 * Math.PI * x / 2.5) * Math.exp(-y*y/1.5);
+    px.push(x);
+    py.push(y);
+    speed.push(Math.sqrt(u*u + v*v));
+  }
+  return {px, py, speed};
+}
+
+const particles = generateParticles(3000);
+Plotly.newPlot('particle-plot', [{
+  type: 'scattergl',
+  mode: 'markers',
+  x: particles.px,
+  y: particles.py,
+  marker: {
+    size: 3,
+    color: particles.speed,
+    colorscale: 'Viridis',
+    colorbar: {title: {text: '|u|', font: {color: '#94a3b8'}}, tickfont: {color: '#94a3b8'}},
+    opacity: 0.6,
+  },
+  hovertemplate: 'x: %{x:.2f} D<br>y: %{y:.2f} D<br>|u|: %{marker.color:.3f}<extra></extra>',
+}], {
+  paper_bgcolor: '#1e293b',
+  plot_bgcolor: '#1e293b',
+  font: {color: '#94a3b8'},
+  xaxis: {title: 'x / D', gridcolor: '#334155'},
+  yaxis: {title: 'y / D', gridcolor: '#334155', scaleanchor: 'x'},
+  margin: {t: 30, b: 50, l: 60, r: 20},
+  shapes: [{
+    type: 'circle', x0: -0.5, x1: 0.5, y0: -0.5, y1: 0.5,
+    fillcolor: '#64748b', line: {color: '#94a3b8', width: 2},
+  }],
+}, {responsive: true});
+</script>
+
+</body>
+</html>
